@@ -1,0 +1,27 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8000,
+    "timeout": 3600
+  },
+  "speech": {
+    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "model": "qwen3-asr-flash",
+    "enable_itn": false,
+    "language": null
+  },
+  "vision": {
+    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "model": "qwen3-vl-flash",
+    "max_tokens": 2000,
+    "temperature": 0.7
+  },
+  "workspace": {
+    "base_dir": "/data/workspaces",
+    "auto_cleanup_days": 7
+  },
+  "download": {
+    "default_quality": "best",
+    "max_file_size_gb": 5
+  }
+}
