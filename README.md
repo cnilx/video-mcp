@@ -21,12 +21,75 @@
 
 ## 快速开始
 
-### 系统要求
+### 开发环境
 
+**系统要求**：
+- Python 3.11+
+- 至少 5GB 可用磁盘空间
+
+**启动步骤**：
+
+1. **克隆项目**
+```bash
+git clone https://github.com/yourusername/video-mcp.git
+cd video-mcp
+```
+
+2. **创建虚拟环境**
+```bash
+python -m venv venv
+source venv/Scripts/activate  # Linux/Mac
+# 或
+venv\Scripts\activate.bat     # Windows
+```
+
+3. **安装依赖**
+```bash
+pip install -r requirements.txt
+```
+
+4. **配置环境变量**
+```bash
+cp .env.example .env
+# 编辑 .env 文件，填入以下配置：
+# - API_KEY: 服务认证密钥（自定义）
+# - DASHSCOPE_API_KEY: 阿里百炼 API 密钥（语音识别 + 图像识别）
+```
+
+5. **配置服务（可选）**
+```bash
+cp config/config.example.json config/config.json
+# 根据需要调整配置（端口、超时时间等）
+```
+
+6. **启动服务**
+```bash
+# Linux/Mac
+./start_server.sh
+
+# Windows
+start_server.bat
+
+# 或直接运行
+python -m uvicorn src.server:app --host 0.0.0.0 --port 8000 --reload
+```
+
+7. **验证服务**
+```bash
+# 访问健康检查端点
+curl http://localhost:8000/health
+
+# 或运行测试脚本
+./test_server.sh
+```
+
+### Docker 部署
+
+**系统要求**：
 - Docker 和 Docker Compose
 - 至少 5GB 可用磁盘空间
 
-### 部署步骤
+**部署步骤**：
 
 1. **克隆项目**
 ```bash
