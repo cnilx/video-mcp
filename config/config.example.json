@@ -5,10 +5,12 @@
     "timeout": 3600
   },
   "speech": {
-    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-    "model": "qwen3-asr-flash",
-    "enable_itn": false,
-    "language": null
+    "model": "qwen3-asr-flash-filetrans",
+    "language": "zh"
+  },
+  "oss": {
+    "endpoint": "oss-cn-hangzhou.aliyuncs.com",
+    "bucket_name": "your-bucket-name"
   },
   "vision": {
     "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",

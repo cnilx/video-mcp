@@ -25,13 +25,14 @@ class ServerConfig(BaseModel):
 
 class SpeechConfig(BaseModel):
     """语音识别配置"""
-    base_url: str = Field(
-        default="https://dashscope.aliyuncs.com/compatible-mode/v1",
-        description="API 基础 URL"
-    )
-    model: str = Field(default="qwen3-asr-flash", description="语音识别模型")
-    enable_itn: bool = Field(default=False, description="是否启用逆文本归一化")
-    language: Optional[str] = Field(default=None, description="语言代码")
+    model: str = Field(default="qwen3-asr-flash-filetrans", description="语音识别模型")
+    language: str = Field(default="zh", description="语言代码（zh, en, ja, ko 等）")
+
+
+class OSSConfig(BaseModel):
+    """阿里云 OSS 配置"""
+    endpoint: str = Field(default="", description="OSS Endpoint（如 oss-cn-hangzhou.aliyuncs.com）")
+    bucket_name: str = Field(default="", description="OSS Bucket 名称")
 
 
 class VisionConfig(BaseModel):
@@ -70,6 +71,7 @@ class AppConfig(BaseModel):
     """应用配置"""
     server: ServerConfig = Field(default_factory=ServerConfig)
     speech: SpeechConfig = Field(default_factory=SpeechConfig)
+    oss: OSSConfig = Field(default_factory=OSSConfig)
     vision: VisionConfig = Field(default_factory=VisionConfig)
     workspace: WorkspaceConfig = Field(default_factory=WorkspaceConfig)
     download: DownloadConfig = Field(default_factory=DownloadConfig)
@@ -103,6 +105,8 @@ class Config:
         # 加载敏感信息（从环境变量）
         self.api_key = os.getenv("API_KEY")
         self.dashscope_api_key = os.getenv("DASHSCOPE_API_KEY")
+        self.oss_access_key_id = os.getenv("OSS_ACCESS_KEY_ID")
+        self.oss_access_key_secret = os.getenv("OSS_ACCESS_KEY_SECRET")
 
         # 验证必需的配置
         self._validate_env()
@@ -150,6 +154,9 @@ class Config:
         if not self.dashscope_api_key:
             logger.warning("未设置 DASHSCOPE_API_KEY 环境变量，语音识别和图像识别功能将不可用")
 
+        if not self.oss_access_key_id or not self.oss_access_key_secret:
+            logger.warning("未设置 OSS 环境变量，使用 filetrans 模型时需要 OSS 支持")
+
     def reload(self) -> bool:
         """
         重新加载配置
@@ -170,6 +177,8 @@ class Config:
             self._config = new_config
             self.api_key = os.getenv("API_KEY")
             self.dashscope_api_key = os.getenv("DASHSCOPE_API_KEY")
+            self.oss_access_key_id = os.getenv("OSS_ACCESS_KEY_ID")
+            self.oss_access_key_secret = os.getenv("OSS_ACCESS_KEY_SECRET")
 
             self._validate_env()
 
@@ -246,24 +255,25 @@ class Config:
 
     # 语音识别配置属性
     @property
-    def speech_base_url(self) -> str:
-        """语音识别 API 基础 URL"""
-        return self._config.speech.base_url
-
-    @property
     def speech_model(self) -> str:
         """语音识别模型"""
         return self._config.speech.model
 
     @property
-    def speech_enable_itn(self) -> bool:
-        """是否启用逆文本归一化"""
-        return self._config.speech.enable_itn
-
-    @property
-    def speech_language(self) -> Optional[str]:
+    def speech_language(self) -> str:
         """语音识别语言"""
         return self._config.speech.language
+
+    # OSS 配置属性
+    @property
+    def oss_endpoint(self) -> str:
+        """OSS Endpoint"""
+        return self._config.oss.endpoint
+
+    @property
+    def oss_bucket_name(self) -> str:
+        """OSS Bucket 名称"""
+        return self._config.oss.bucket_name
 
     # 图像识别配置属性
     @property
