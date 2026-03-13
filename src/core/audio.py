@@ -177,11 +177,9 @@ class AudioProcessor:
         self.language = language
         self.oss_uploader = oss_uploader
 
-        # 设置 API Key
+        # 设置 API Key（未提供时仍可使用音频提取等不依赖 API 的功能）
         if self.api_key:
             dashscope.api_key = self.api_key
-        else:
-            logger.warning("未提供 API Key，语音转文本功能将不可用")
 
         # 如果未提供 OSS 上传器，创建一个
         if self.oss_uploader is None:

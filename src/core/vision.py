@@ -399,7 +399,11 @@ class VisionAnalyzer:
 
                 # 检查响应状态
                 if response.status_code != 200:
-                    error_msg = f"API 调用失败: {response.code} - {response.message}"
+                    error_msg = (
+                        f"API 调用失败: status={response.status_code}, "
+                        f"code={response.code}, message={response.message}, "
+                        f"model={self.model}, base_url={self.base_url}"
+                    )
                     logger.error(error_msg)
 
                     # 如果不是最后一次尝试，等待后重试

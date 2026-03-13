@@ -62,6 +62,19 @@ app = FastAPI(
 )
 
 
+# Bearer Token 认证中间件：拦截 /mcp 路径
+@app.middleware("http")
+async def mcp_auth_middleware(request: Request, call_next):
+    if request.url.path.startswith("/mcp") and config.api_key:
+        auth_header = request.headers.get("authorization", "")
+        if not auth_header.startswith("Bearer "):
+            return JSONResponse(status_code=401, content={"error": "未提供认证凭据"})
+        token = auth_header[7:]
+        if token != config.api_key:
+            return JSONResponse(status_code=401, content={"error": "无效的 API Key"})
+    return await call_next(request)
+
+
 # 配置 CORS
 app.add_middleware(
     CORSMiddleware,

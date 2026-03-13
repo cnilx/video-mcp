@@ -38,8 +38,8 @@ class OSSConfig(BaseModel):
 class VisionConfig(BaseModel):
     """图像识别配置"""
     base_url: str = Field(
-        default="https://dashscope.aliyuncs.com/compatible-mode/v1",
-        description="API 基础 URL"
+        default="https://dashscope.aliyuncs.com/api/v1",
+        description="API 基础 URL（DashScope 原生 SDK 端点）"
     )
     model: str = Field(default="qwen3-vl-flash", description="图像识别模型")
     max_tokens: int = Field(default=2000, ge=1, description="最大 token 数")
