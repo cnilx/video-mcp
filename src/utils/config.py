@@ -50,6 +50,7 @@ class WorkspaceConfig(BaseModel):
     """工作空间配置"""
     base_dir: str = Field(default="/data/workspaces", description="工作目录基础路径")
     auto_cleanup_days: int = Field(default=7, ge=1, description="自动清理天数")
+    max_size_gb: float = Field(default=10.0, gt=0, description="工作空间最大总大小（GB）")
 
 
 class DownloadConfig(BaseModel):
@@ -306,6 +307,11 @@ class Config:
     def workspace_auto_cleanup_days(self) -> int:
         """工作目录自动清理天数"""
         return self._config.workspace.auto_cleanup_days
+
+    @property
+    def workspace_max_size_gb(self) -> float:
+        """工作空间最大总大小（GB）"""
+        return self._config.workspace.max_size_gb
 
     # 下载配置属性
     @property
