@@ -1,13 +1,12 @@
 """FastAPI HTTP 服务入口"""
 import sys
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, Depends, HTTPException, status
+from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi.security import HTTPAuthorizationCredentials
 from loguru import logger
 
-from src.auth import security, verify_api_key
+from src.mcp_app import mcp
 from src.utils.config import config
 
 
@@ -33,18 +32,22 @@ async def lifespan(app: FastAPI):
     logger.info(f"工作目录: {config.workspace_base_dir}")
 
     if config.api_key:
-        logger.info("✓ API Key 认证已启用")
+        logger.info("API Key 认证已启用")
     else:
-        logger.warning("✗ API Key 认证未启用（开发模式）")
+        logger.warning("API Key 认证未启用（开发模式）")
 
     if config.dashscope_api_key:
-        logger.info("✓ 阿里百炼 API Key 已配置")
+        logger.info("阿里百炼 API Key 已配置")
     else:
-        logger.warning("✗ 阿里百炼 API Key 未配置")
+        logger.warning("阿里百炼 API Key 未配置")
 
+    # 列出已注册的 MCP 工具
+    tools = await mcp.list_tools()
+    logger.info(f"已注册 MCP 工具: {[t.name for t in tools]}")
     logger.info("=" * 60)
 
-    yield
+    async with mcp.session_manager.run():
+        yield
 
     # 关闭时执行
     logger.info("视频分析 MCP 服务正在关闭...")
@@ -90,72 +93,8 @@ async def health_check():
     }
 
 
-@app.post("/mcp")
-async def mcp_endpoint(
-    request: Request,
-    credentials: HTTPAuthorizationCredentials = Depends(security)
-):
-    """
-    MCP 协议 HTTP 端点
-
-    Args:
-        request: FastAPI 请求对象
-        credentials: HTTP 认证凭据
-
-    Returns:
-        MCP 协议响应
-    """
-    # 验证 API Key
-    await verify_api_key(credentials)
-
-    try:
-        # 读取请求体
-        body = await request.json()
-        logger.info(f"收到 MCP 请求: {body.get('method', 'unknown')}")
-
-        # TODO: 集成 MCP SDK 处理请求
-        # 这里暂时返回一个占位响应
-        return JSONResponse(
-            content={
-                "jsonrpc": "2.0",
-                "id": body.get("id"),
-                "result": {
-                    "message": "MCP SDK 集成待实现"
-                }
-            }
-        )
-
-    except Exception as e:
-        logger.error(f"处理 MCP 请求失败: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"处理请求失败: {str(e)}"
-        )
-
-
-@app.get("/mcp/sse")
-async def mcp_sse_endpoint(
-    request: Request,
-    credentials: HTTPAuthorizationCredentials = Depends(security)
-):
-    """
-    MCP 协议 SSE 端点（可选）
-
-    Args:
-        request: FastAPI 请求对象
-        credentials: HTTP 认证凭据
-
-    Returns:
-        SSE 流响应
-    """
-    # 验证 API Key
-    await verify_api_key(credentials)
-
-    # TODO: 实现 SSE 支持
-    return JSONResponse(
-        content={"message": "SSE 端点待实现"},
-        status_code=status.HTTP_501_NOT_IMPLEMENTED
-    )
+# 挂载 MCP Streamable HTTP 到 /mcp 路径
+app.mount("/mcp", mcp.streamable_http_app())
 
 
 @app.exception_handler(HTTPException)

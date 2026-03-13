@@ -26,7 +26,7 @@ class ServerConfig(BaseModel):
 class SpeechConfig(BaseModel):
     """语音识别配置"""
     model: str = Field(default="qwen3-asr-flash-filetrans", description="语音识别模型")
-    language: str = Field(default="zh", description="语言代码（zh, en, ja, ko 等）")
+    language: Optional[str] = Field(default="zh", description="语言代码（zh, en, ja, ko 等）")
 
 
 class OSSConfig(BaseModel):
@@ -94,7 +94,8 @@ class Config:
 
         # 确定配置文件路径
         if config_path is None:
-            config_path = os.getenv("CONFIG_PATH", "config/config.json")
+            project_root = Path(__file__).resolve().parent.parent.parent
+            config_path = os.getenv("CONFIG_PATH", str(project_root / "config" / "config.json"))
 
         self.config_path = Path(config_path)
         self.auto_reload = auto_reload

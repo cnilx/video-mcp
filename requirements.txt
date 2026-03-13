@@ -3,7 +3,7 @@ fastapi==0.115.0
 uvicorn[standard]==0.32.0
 
 # MCP SDK
-mcp==1.1.2
+mcp>=1.26.0
 
 # 视频处理
 yt-dlp>=2026.3.3
