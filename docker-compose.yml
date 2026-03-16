@@ -1,0 +1,20 @@
+services:
+  video-mcp:
+    image: video-mcp:latest
+    container_name: video-mcp
+    ports:
+      - "8000:8000"
+    volumes:
+      # 持久化数据目录
+      - ./data:/data
+      # 可选：挂载自定义配置文件
+      # - ./config.json:/app/config/config.json:ro
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s

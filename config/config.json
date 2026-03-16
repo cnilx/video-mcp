@@ -21,7 +21,7 @@
     "auto_cleanup_days": 7
   },
   "download": {
-    "default_quality": "best",
+    "default_quality": "low",
     "max_file_size_gb": 5
   }
 }
