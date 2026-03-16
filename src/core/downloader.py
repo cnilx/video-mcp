@@ -193,7 +193,7 @@ class VideoDownloader:
 
         opts = {
             'format': format_str,
-            'outtmpl': str(self.output_dir / '%(title)s.%(ext)s'),
+            'outtmpl': str(self.output_dir / '%(title).100s.%(ext)s'),  # 限制标题长度为100字符
             'progress_hooks': [self._progress_hook],
             'socket_timeout': self.timeout,
             'retries': self.max_retries,
@@ -221,7 +221,19 @@ class VideoDownloader:
             opts['force_generic_extractor'] = True
 
         # 平台特定配置
-        if platform == 'douyin':
+        if platform == 'bilibili':
+            # Bilibili 特定配置 - 防止 HTTP 412 错误
+            opts.update({
+                'http_headers': {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Referer': 'https://www.bilibili.com/',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+                    'Accept-Encoding': 'gzip, deflate, br',
+                    'Connection': 'keep-alive',
+                },
+            })
+        elif platform == 'douyin':
             # 抖音特定配置
             # 参考成功案例：让短链解析到 douyinvod.com 直链，使用 Generic 提取器
             opts.update({
