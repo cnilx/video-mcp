@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+env/
+ENV/
+.eggs/
+*.egg-info/
+*.egg
+dist/
+build/
+
+# 环境变量（通过 docker-compose 或 --env-file 传入）
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 测试
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# 文档
+docs/
+*.md
+
+# 数据和工作空间
+/data/
+workspaces/
+workspace/
+
+# 日志和临时文件
+*.log
+*.tmp
+*.bak
+.DS_Store
+
+# Claude
+.claude/
+CLAUDE.md
