@@ -8,8 +8,9 @@
 # ---------- 阶段1：构建依赖 ----------
 FROM python:3.14-slim AS builder
 
-# 复制宿主机 APT 源配置
-COPY ./etc/apt/sources.list /etc/apt/sources.list
+#  sed 命令修改镜像源
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+    sed -i 's|security.debian.org/debian-security|mirrors.aliyun.com/debian-security|g' /etc/apt/sources.list
 
 WORKDIR /build
 
