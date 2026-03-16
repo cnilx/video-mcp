@@ -31,6 +31,10 @@ FROM python:3.14-slim
 LABEL maintainer="video-mcp"
 LABEL description="视频分析 MCP 服务"
 
+# 配置阿里云镜像源
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+    sed -i 's|security.debian.org/debian-security|mirrors.aliyun.com/debian-security|g' /etc/apt/sources.list
+
 # 安装运行时依赖：ffmpeg + yt-dlp
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
