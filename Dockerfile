@@ -8,9 +8,9 @@
 # ---------- 阶段1：构建依赖 ----------
 FROM python:3.14-slim AS builder
 
-#  sed 命令修改镜像源
-RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list && \
-    sed -i 's|security.debian.org/debian-security|mirrors.aliyun.com/debian-security|g' /etc/apt/sources.list
+# 配置阿里云镜像源（新版 Debian 使用 .sources 格式）
+RUN sed -i 's|http://deb.debian.org|http://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources && \
+    sed -i 's|http://security.debian.org|http://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources
 
 WORKDIR /build
 
@@ -31,9 +31,9 @@ FROM python:3.14-slim
 LABEL maintainer="video-mcp"
 LABEL description="视频分析 MCP 服务"
 
-# 配置阿里云镜像源
-RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list && \
-    sed -i 's|security.debian.org/debian-security|mirrors.aliyun.com/debian-security|g' /etc/apt/sources.list
+# 配置阿里云镜像源（新版 Debian 使用 .sources 格式）
+RUN sed -i 's|http://deb.debian.org|http://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources && \
+    sed -i 's|http://security.debian.org|http://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources
 
 # 安装运行时依赖：ffmpeg + yt-dlp
 RUN apt-get update && \
