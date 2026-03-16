@@ -9,7 +9,7 @@
 FROM python:3.14-slim AS builder
 
 # 复制宿主机 APT 源配置
-COPY ./sources.list /etc/apt/sources.list
+COPY ./etc/apt/sources.list /etc/apt/sources.list
 
 WORKDIR /build
 
