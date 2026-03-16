@@ -8,6 +8,9 @@
 # ---------- 阶段1：构建依赖 ----------
 FROM python:3.14-slim AS builder
 
+# 复制宿主机 APT 源配置
+COPY ./sources.list /etc/apt/sources.list
+
 WORKDIR /build
 
 # 安装构建依赖
