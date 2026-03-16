@@ -9,8 +9,19 @@ services:
       - ./data:/data
       # 可选：挂载自定义配置文件
       # - ./config.json:/app/config/config.json:ro
-    env_file:
-      - ../.env
+    environment:
+      # API 服务认证
+      - API_KEY=your-api-key-here
+      # 阿里百炼 API Key
+      - DASHSCOPE_API_KEY=your-dashscope-api-key
+      # 阿里云 OSS 配置
+      - OSS_ACCESS_KEY_ID=your-oss-access-key-id
+      - OSS_ACCESS_KEY_SECRET=your-oss-access-key-secret
+      - OSS_ENDPOINT=oss-cn-beijing.aliyuncs.com
+      - OSS_BUCKET_NAME=your-bucket-name
+      # Python 环境配置
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
