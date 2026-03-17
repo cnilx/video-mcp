@@ -45,7 +45,7 @@ def _get_analyze_tool() -> AnalyzeVideoFramesTool:
 @mcp.tool()
 async def transcribe_video(
     url: str,
-    quality: str = "best",
+    quality: str = "low",
     language: str = "zh",
 ) -> dict:
     """将在线视频转录为带时间戳的SRT字幕文本。

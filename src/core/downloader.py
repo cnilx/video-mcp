@@ -170,7 +170,7 @@ class VideoDownloader:
 
     def _get_ydl_opts(
         self,
-        quality: VideoQuality = VideoQuality.BEST,
+        quality: VideoQuality = VideoQuality.LOW,
         format_type: str = 'mp4',
         platform: Optional[str] = None,
     ) -> Dict[str, Any]:
@@ -225,12 +225,19 @@ class VideoDownloader:
             # Bilibili 特定配置 - 防止 HTTP 412 错误
             opts.update({
                 'http_headers': {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
                     'Referer': 'https://www.bilibili.com/',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                    'Origin': 'https://www.bilibili.com',
+                    'Accept': '*/*',
                     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
                     'Accept-Encoding': 'gzip, deflate, br',
                     'Connection': 'keep-alive',
+                    'Sec-Ch-Ua': '"Chromium";v="131", "Not_A Brand";v="24"',
+                    'Sec-Ch-Ua-Mobile': '?0',
+                    'Sec-Ch-Ua-Platform': '"Windows"',
+                    'Sec-Fetch-Dest': 'empty',
+                    'Sec-Fetch-Mode': 'cors',
+                    'Sec-Fetch-Site': 'same-site',
                 },
             })
         elif platform == 'douyin':
@@ -361,7 +368,7 @@ class VideoDownloader:
     async def download(
         self,
         url: str,
-        quality: VideoQuality = VideoQuality.BEST,
+        quality: VideoQuality = VideoQuality.LOW,
         format_type: str = 'mp4',
     ) -> DownloadResult:
         """
