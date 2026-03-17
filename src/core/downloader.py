@@ -229,7 +229,7 @@ class VideoDownloader:
 
         # 平台特定配置
         if platform == 'bilibili':
-            # Bilibili 特定配置 - 防止 WBI 签名失败
+            # Bilibili 特定配置 - 防止 WBI 签名失败和412错误
             opts.update({
                 'http_headers': {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
@@ -245,6 +245,8 @@ class VideoDownloader:
                     'Sec-Fetch-Dest': 'empty',
                     'Sec-Fetch-Mode': 'cors',
                     'Sec-Fetch-Site': 'same-site',
+                    # 添加关键的Cookie头，即使为空也要发送
+                    'Cookie': '',
                 },
                 # 添加更宽松的错误处理和重试
                 'ignoreerrors': False,
@@ -255,6 +257,8 @@ class VideoDownloader:
                 # 添加延迟避免触发反爬
                 'sleep_interval': 1,
                 'max_sleep_interval': 3,
+                # 尝试从浏览器获取Cookie（如果可用）
+                'cookiesfrombrowser': None,  # 可以设置为 ('chrome',) 或 ('edge',) 等
             })
         elif platform == 'douyin':
             # 抖音特定配置
