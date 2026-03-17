@@ -22,6 +22,7 @@
 ### 三步启动
 
 **1. 克隆项目**
+
 ```bash
 git clone https://github.com/yourusername/video-mcp.git
 cd video-mcp
