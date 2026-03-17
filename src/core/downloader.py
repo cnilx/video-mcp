@@ -228,41 +228,7 @@ class VideoDownloader:
             opts['force_generic_extractor'] = True
 
         # 平台特定配置
-        if platform == 'bilibili':
-            # Bilibili 特定配置 - 防止 WBI 签名失败和412错误
-            # 参考抖音成功方案：使用完整的浏览器请求头
-            opts.update({
-                'http_headers': {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-                    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-                    'Accept-Encoding': 'gzip, deflate, br',
-                    'Referer': 'https://www.bilibili.com/',
-                    'Origin': 'https://www.bilibili.com',
-                    'Connection': 'keep-alive',
-                    'Upgrade-Insecure-Requests': '1',
-                    'Sec-Ch-Ua': '"Chromium";v="131", "Not_A Brand";v="24"',
-                    'Sec-Ch-Ua-Mobile': '?0',
-                    'Sec-Ch-Ua-Platform': '"Windows"',
-                    'Sec-Fetch-Dest': 'document',
-                    'Sec-Fetch-Mode': 'navigate',
-                    'Sec-Fetch-Site': 'none',
-                    'Sec-Fetch-User': '?1',
-                    'Cache-Control': 'max-age=0',
-                },
-                # 添加更宽松的错误处理和重试
-                'ignoreerrors': False,
-                'nocheckcertificate': True,
-                # 增加重试次数
-                'extractor_retries': 5,
-                'fragment_retries': 10,
-                # 添加延迟避免触发反爬
-                'sleep_interval': 1,
-                'max_sleep_interval': 3,
-                # 尝试从浏览器获取Cookie（如果可用）
-                'cookiesfrombrowser': None,  # 可以设置为 ('chrome',) 或 ('edge',) 等
-            })
-        elif platform == 'douyin':
+        if platform == 'douyin':
             # 抖音特定配置
             # 参考成功案例：让短链解析到 douyinvod.com 直链，使用 Generic 提取器
             opts.update({
@@ -315,75 +281,6 @@ class VideoDownloader:
             if any(domain in url_lower for domain in domains):
                 return platform
         return None
-
-    async def _resolve_bilibili_url(self, url: str) -> Optional[tuple[str, str]]:
-        """
-        解析B站视频链接，从页面提取播放地址和标题（绕过412错误）
-
-        Args:
-            url: B站视频链接
-
-        Returns:
-            (视频播放 URL, 视频标题) 元组，失败返回 None
-        """
-        import httpx
-        import json
-        import re
-
-        try:
-            # 使用完整的浏览器请求头访问B站
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-                'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'Referer': 'https://www.bilibili.com/',
-                'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1',
-                'Sec-Fetch-Dest': 'document',
-                'Sec-Fetch-Mode': 'navigate',
-                'Sec-Fetch-Site': 'none',
-                'Sec-Fetch-User': '?1',
-            }
-
-            async with httpx.AsyncClient(follow_redirects=True, timeout=30.0) as client:
-                response = await client.get(url, headers=headers)
-                html = response.text
-
-                logger.info(f"B站页面获取成功: {url}")
-
-                # 从页面中提取 __INITIAL_STATE__ JSON 数据
-                json_pattern = r'<script>window\.__INITIAL_STATE__=({.*?});'
-                matches = re.findall(json_pattern, html)
-
-                if not matches:
-                    logger.warning("未找到视频数据")
-                    return None
-
-                # 解析 JSON
-                data = json.loads(matches[0])
-
-                # 提取视频信息
-                video_data = data.get('videoData', {})
-                title = video_data.get('title', 'bilibili_video')
-                bvid = video_data.get('bvid', '')
-
-                # 清理标题中的特殊字符
-                title = re.sub(r'[<>:"/\\|?*]', '', title)
-                title = title.strip()[:100]
-
-                if not title:
-                    title = 'bilibili_video'
-
-                logger.info(f"提取到视频标题: {title}")
-                logger.info(f"视频BV号: {bvid}")
-
-                # 返回原始URL和标题，让yt-dlp使用改进的配置下载
-                return (url, title)
-
-        except Exception as e:
-            logger.error(f"解析B站 URL 失败: {str(e)}")
-            return None
 
     async def _resolve_douyin_url(self, url: str) -> Optional[tuple[str, str]]:
         """
@@ -479,10 +376,9 @@ class VideoDownloader:
 
         logger.info(f"开始下载视频: {url} (质量: {quality}, 格式: {format_type})")
 
-        # 对于抖音和B站，先尝试解析视频信息
+        # 对于抖音，先解析出真实的视频播放地址和标题
         download_url = url
         custom_title = None
-
         if platform == 'douyin':
             logger.info("检测到抖音链接，正在解析视频播放地址...")
             result = await self._resolve_douyin_url(url)
@@ -492,20 +388,10 @@ class VideoDownloader:
             else:
                 logger.warning("解析视频地址失败，尝试使用原始 URL")
 
-        elif platform == 'bilibili':
-            logger.info("检测到B站链接，正在预解析视频信息...")
-            result = await self._resolve_bilibili_url(url)
-            if result:
-                # B站返回原始URL和标题，使用改进的配置下载
-                download_url, custom_title = result
-                logger.info(f"预解析成功，使用增强配置下载")
-            else:
-                logger.warning("预解析失败，使用默认配置")
-
         ydl_opts = self._get_ydl_opts(quality, format_type, platform)
 
-        # 如果有自定义标题，使用自定义文件名（限制长度）
-        if custom_title:
+        # 如果是抖音且有标题，使用自定义文件名（限制长度）
+        if platform == 'douyin' and custom_title:
             # 限制标题长度为20字符，避免文件名过长
             safe_title = custom_title[:20]
             ydl_opts['outtmpl'] = str(self.output_dir / f'{safe_title}.%(ext)s')
