@@ -6,7 +6,7 @@ uvicorn[standard]==0.32.0
 mcp>=1.26.0
 
 # 视频处理
-yt-dlp>=2026.3.3
+yt-dlp>=2026.3.13
 
 # 音视频处理
 ffmpeg-python==0.2.0

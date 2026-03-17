@@ -222,6 +222,7 @@ class AnalyzeVideoFramesTool:
             downloader = VideoDownloader(
                 output_dir=video_dir,
                 max_file_size=config.download_max_file_size_gb * 1024 * 1024 * 1024,
+                cookiefile=config.download_bilibili_cookie_file,
             )
             result = await downloader.download(url)
 

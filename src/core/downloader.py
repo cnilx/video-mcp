@@ -96,6 +96,13 @@ class VideoDownloader:
             VideoQuality.MEDIUM: 'best[height<=720]',
             VideoQuality.LOW: 'best[height<=480]',
         },
+        'bilibili': {
+            # B站格式选择 - 避免选择需要会员的格式
+            VideoQuality.BEST: 'bestvideo[height<=1080][vcodec^=avc]+bestaudio/best[height<=1080]',
+            VideoQuality.HIGH: 'bestvideo[height<=1080][vcodec^=avc]+bestaudio/best[height<=1080]',
+            VideoQuality.MEDIUM: 'bestvideo[height<=720][vcodec^=avc]+bestaudio/best[height<=720]',
+            VideoQuality.LOW: 'bestvideo[height<=480][vcodec^=avc]+bestaudio/best[height<=480]',
+        },
         'douyin': {
             # 抖音使用更简单的格式选择
             VideoQuality.BEST: 'best',
@@ -222,7 +229,7 @@ class VideoDownloader:
 
         # 平台特定配置
         if platform == 'bilibili':
-            # Bilibili 特定配置 - 防止 HTTP 412 错误
+            # Bilibili 特定配置 - 防止 WBI 签名失败
             opts.update({
                 'http_headers': {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
@@ -239,6 +246,15 @@ class VideoDownloader:
                     'Sec-Fetch-Mode': 'cors',
                     'Sec-Fetch-Site': 'same-site',
                 },
+                # 添加更宽松的错误处理和重试
+                'ignoreerrors': False,
+                'nocheckcertificate': True,
+                # 增加重试次数
+                'extractor_retries': 5,
+                'fragment_retries': 10,
+                # 添加延迟避免触发反爬
+                'sleep_interval': 1,
+                'max_sleep_interval': 3,
             })
         elif platform == 'douyin':
             # 抖音特定配置

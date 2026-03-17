@@ -57,14 +57,15 @@ class DownloadConfig(BaseModel):
     """下载配置"""
     default_quality: str = Field(default="best", description="默认视频质量")
     max_file_size_gb: int = Field(default=5, ge=1, description="最大文件大小（GB）")
+    bilibili_cookie_file: Optional[str] = Field(default=None, description="Bilibili Cookie 文件路径")
 
     @field_validator("default_quality")
     @classmethod
     def validate_quality(cls, v: str) -> str:
-        allowed = ["best", "worst", "720p", "1080p", "480p"]
+        allowed = ["best", "high", "medium", "low", "worst"]
         if v not in allowed:
-            logger.warning(f"不支持的视频质量: {v}，使用默认值 'best'")
-            return "best"
+            logger.warning(f"不支持的视频质量: {v}，使用默认值 'low'")
+            return "low"
         return v
 
 
@@ -324,6 +325,11 @@ class Config:
     def download_max_file_size_gb(self) -> int:
         """最大文件大小（GB）"""
         return self._config.download.max_file_size_gb
+
+    @property
+    def download_bilibili_cookie_file(self) -> Optional[str]:
+        """Bilibili Cookie 文件路径"""
+        return self._config.download.bilibili_cookie_file
 
 
 # 全局配置实例
