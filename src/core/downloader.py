@@ -200,7 +200,7 @@ class VideoDownloader:
 
         opts = {
             'format': format_str,
-            'outtmpl': str(self.output_dir / '%(title).100s.%(ext)s'),  # 限制标题长度为100字符
+            'outtmpl': str(self.output_dir / '%(title).50s.%(ext)s'),  # 限制标题长度为50字符，避免中文字符超过文件系统限制
             'progress_hooks': [self._progress_hook],
             'socket_timeout': self.timeout,
             'retries': self.max_retries,
