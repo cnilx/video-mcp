@@ -200,7 +200,7 @@ class VideoDownloader:
 
         opts = {
             'format': format_str,
-            'outtmpl': str(self.output_dir / '%(title).50s.%(ext)s'),  # 限制标题长度为50字符，避免中文字符超过文件系统限制
+            'outtmpl': str(self.output_dir / '%(title).20s.%(ext)s'),  # 限制标题长度为20字符，避免中文字符超过文件系统限制
             'progress_hooks': [self._progress_hook],
             'socket_timeout': self.timeout,
             'retries': self.max_retries,
@@ -418,9 +418,11 @@ class VideoDownloader:
 
         ydl_opts = self._get_ydl_opts(quality, format_type, platform)
 
-        # 如果是抖音且有标题，使用自定义文件名
+        # 如果是抖音且有标题，使用自定义文件名（限制长度）
         if platform == 'douyin' and douyin_title:
-            ydl_opts['outtmpl'] = str(self.output_dir / f'{douyin_title}.%(ext)s')
+            # 限制标题长度为20字符，避免文件名过长
+            safe_title = douyin_title[:20]
+            ydl_opts['outtmpl'] = str(self.output_dir / f'{safe_title}.%(ext)s')
 
         try:
             # 在线程池中运行 yt-dlp（避免阻塞事件循环）
