@@ -23,7 +23,16 @@
 
 无需克隆代码，直接使用预构建镜像快速启动。
 
-**1. 创建配置文件**
+**1. 创建工作目录**
+
+```bash
+mkdir -p video-mcp-deploy
+cd video-mcp-deploy
+mkdir -p data
+chmod 777 data  # 授权容器读写数据目录
+```
+
+**2. 创建配置文件**
 
 创建 `docker-compose.yml`：
 ```yaml
