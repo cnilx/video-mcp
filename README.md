@@ -19,22 +19,39 @@
 - 阿里云 OSS 存储（[开通地址](https://oss.console.aliyun.com/)）
 - 网络代理（用于下载 YouTube 等国外视频）
 
-### 三步启动
+### 方式一：使用 Docker Hub 镜像（推荐）
 
-**1. 克隆项目**
+无需克隆代码，直接使用预构建镜像快速启动。
 
-```bash
-git clone https://github.com/yourusername/video-mcp.git
-cd video-mcp
+**1. 创建配置文件**
+
+创建 `docker-compose.yml`：
+```yaml
+services:
+  video-mcp:
+    image: cnilx/video-mcp:latest
+    container_name: video-mcp
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
 ```
 
-**2. 配置环境变量**
-```bash
-cd deploy
-cp .env.example .env
-```
-
-编辑 `deploy/.env` 文件，填入必需配置：
+创建 `.env` 文件：
 ```bash
 # 服务认证密钥（必需，自定义，用于 Claude 连接）
 API_KEY=your-api-key-here
@@ -53,6 +70,33 @@ HTTP_PROXY=http://host.docker.internal:7890
 HTTPS_PROXY=http://host.docker.internal:7890
 NO_PROXY=localhost,127.0.0.1,host.docker.internal
 ```
+
+**2. 启动服务**
+```bash
+docker-compose up -d
+```
+
+**3. 查看日志**
+```bash
+docker-compose logs -f
+```
+
+### 方式二：从源码构建
+
+**1. 克隆项目**
+
+```bash
+git clone https://github.com/yourusername/video-mcp.git
+cd video-mcp
+```
+
+**2. 配置环境变量**
+```bash
+cd deploy
+cp .env.example .env
+```
+
+编辑 `deploy/.env` 文件，填入必需配置（同上）。
 
 **3. 一键部署**
 ```bash
